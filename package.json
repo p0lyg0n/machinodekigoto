@@ -1,0 +1,13 @@
+{
+  "name": "machinodekigoto-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "まちのできごと プロトタイプ（静的 PWA・ビルド不要）",
+  "scripts": {
+    "start": "serve _extracted -p 5173 --no-clipboard",
+    "dev": "serve _extracted -p 5173 --no-clipboard"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  }
+}

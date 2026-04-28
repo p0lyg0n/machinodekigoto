@@ -1,0 +1,17 @@
+{
+  "name": "まちのできごと",
+  "short_name": "まちのできごと",
+  "description": "地域のイベント情報を、もっと簡単に。マルシェ・読書会・音楽の夕べなど、近所のできごとが見つかる場所。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6efe3",
+  "theme_color": "#7c3919",
+  "lang": "ja",
+  "categories": ["lifestyle", "social", "events"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

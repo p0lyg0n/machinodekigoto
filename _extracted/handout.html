@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <title>配布用レシピ — まちのできごと</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5efe3;
+      --paper-dk: #ead9bd;
+      --ink: #2b2319;
+      --ink-soft: #5a4d3c;
+      --ink-mute: #887560;
+      --line: #c9b894;
+      --line-soft: #ded0b2;
+      --banner: #2c2117;
+      --accent: #8b4a2e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #4a3d2c; }
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.7;
+      font-feature-settings: "palt";
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .serif { font-family: "Noto Serif JP", serif; font-weight: 600; }
+
+    /* Top toolbar (hidden in print) */
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #1c1611;
+      color: #f5efe3;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+    .toolbar .title { font-family: "Noto Serif JP", serif; font-size: 14px; font-weight: 600; letter-spacing: 0.08em; }
+    .toolbar .actions { display: flex; gap: 10px; }
+    .toolbar button {
+      background: transparent;
+      color: #f5efe3;
+      border: 1px solid rgba(245,239,227,0.3);
+      padding: 8px 16px;
+      font: inherit;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+    }
+    .toolbar button.primary { background: #d4a868; color: #1c1611; border-color: #d4a868; font-weight: 600; }
+    .toolbar button:hover { border-color: rgba(245,239,227,0.7); }
+    .toolbar button.primary:hover { filter: brightness(1.05); }
+
+    /* Page sheet */
+    .sheet {
+      width: 297mm;
+      min-height: 210mm;
+      background: var(--paper);
+      margin: 76px auto 40px;
+      padding: 18mm 16mm;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      background-image:
+        repeating-linear-gradient(0deg, rgba(139,100,50,0.04) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, rgba(139,100,50,0.04) 0 1px, transparent 1px 3px);
+    }
+    .sheet::before {
+      content: "";
+      position: absolute;
+      top: 10mm; left: 10mm; right: 10mm; bottom: 10mm;
+      border: 1.5px solid var(--line);
+      pointer-events: none;
+    }
+
+    /* Layout — three recipe blocks + center banner */
+    .layout {
+      position: relative;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 10mm 14mm;
+      padding: 4mm;
+    }
+
+    .recipe {
+      display: grid;
+      grid-template-columns: 45mm 1fr;
+      gap: 8mm;
+      align-items: start;
+    }
+    .recipe.wide {
+      grid-column: 1 / -1;
+      grid-template-columns: 50mm 1fr 50mm;
+    }
+    .recipe .photo {
+      aspect-ratio: 1;
+      overflow: hidden;
+      transform: rotate(-1.5deg);
+      border: 3px solid #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      background: var(--paper-dk);
+      position: relative;
+    }
+    .recipe:nth-child(2) .photo { transform: rotate(2deg); }
+    .recipe.wide .photo:first-child { transform: rotate(-2deg); }
+    .recipe.wide .photo:last-child { transform: rotate(1.5deg); }
+    .recipe .photo .ph {
+      width: 100%; height: 100%;
+      background-image:
+        radial-gradient(circle at 30% 40%, rgba(200,140,60,0.35), transparent 55%),
+        radial-gradient(circle at 70% 60%, rgba(120,80,40,0.3), transparent 55%),
+        repeating-linear-gradient(45deg, #d6c19a 0 3px, #c9b48c 3px 5px);
+      display: grid;
+      place-items: center;
+      color: #5a4d3c;
+      font-family: "Noto Serif JP", serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 4px;
+    }
+    .recipe .content { min-width: 0; }
+    .recipe h3 {
+      font-family: "Noto Serif JP", serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 4px;
+      text-decoration-color: var(--line);
+    }
+    .recipe .serves {
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .recipe .ingredients {
+      font-size: 11px;
+      list-style: none;
+      padding: 0;
+      margin: 0 0 8px;
+      columns: 2;
+      column-gap: 8mm;
+      line-height: 1.85;
+    }
+    .recipe .ingredients li {
+      padding-left: 12px;
+      position: relative;
+      break-inside: avoid;
+    }
+    .recipe .ingredients li::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .recipe .steps {
+      font-size: 11px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      counter-reset: step;
+      line-height: 1.8;
+    }
+    .recipe .steps li {
+      counter-increment: step;
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .recipe .steps li::before {
+      content: counter(step) ".";
+      position: absolute;
+      left: 0;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: "Noto Serif JP", serif;
+    }
+    .recipe.wide .content {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-self: center;
+    }
+    .recipe.wide .ingredients { columns: 3; }
+
+    /* Center banner */
+    .banner {
+      grid-column: 1 / -1;
+      background: var(--banner);
+      color: var(--paper);
+      padding: 8mm 12mm;
+      text-align: center;
+      position: relative;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10mm;
+    }
+    .banner .hero {
+      font-family: "Noto Serif JP", serif;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: 0.14em;
+      line-height: 1.2;
+      color: var(--paper);
+    }
+    .banner .tagline {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      color: #d4a868;
+      margin-top: 4px;
+    }
+    .banner .kicker {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #d4a868;
+      margin-bottom: 2px;
+    }
+    .banner .icon {
+      width: 32px;
+      height: 32px;
+      opacity: 0.85;
+      color: #d4a868;
+    }
+    .banner .icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+    /* Nutrition box */
+    .nutrition {
+      border: 1.5px solid var(--ink);
+      padding: 5mm 6mm;
+      font-size: 11px;
+      line-height: 1.9;
+      background: var(--paper);
+      align-self: center;
+    }
+    .nutrition .h {
+      font-family: "Noto Serif JP", serif;
+      font-weight: 600;
+      font-size: 11px;
+      margin-bottom: 4px;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 2px;
+    }
+    .nutrition table { font-size: 11px; border-collapse: collapse; }
+    .nutrition td { padding: 1px 4px 1px 0; }
+    .nutrition td.v { text-align: right; font-family: "Noto Serif JP", serif; font-weight: 600; padding-left: 10px; }
+
+    .sides {
+      font-size: 11px;
+      line-height: 1.9;
+    }
+    .sides .h {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+    .sides ul { margin: 0; padding-left: 14px; color: var(--ink-soft); }
+
+    .footer-stamp {
+      position: absolute;
+      bottom: 4mm;
+      right: 12mm;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--ink-mute);
+      font-family: "Noto Serif JP", serif;
+    }
+    .footer-stamp .mark { color: var(--accent); font-weight: 600; }
+
+    /* Print */
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+    @media print {
+      html, body { background: #fff; }
+      .toolbar { display: none; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        width: 297mm;
+        height: 210mm;
+        page-break-after: always;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sheet {
+        width: 100%;
+        min-width: 0;
+        padding: 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="title">配布用レシピ — まちのできごと</div>
+  <div class="actions">
+    <button onclick="window.close()">閉じる</button>
+    <button class="primary" onclick="window.print()">PDFで保存 / 印刷</button>
+  </div>
+</div>
+
+<div id="sheet" class="sheet">
+  <div class="layout" id="layout"></div>
+</div>
+
+<script>
+  // Fallback sample data
+  const FALLBACK = {
+    event: {
+      title: "スープのタイム 〈 四月 〉",
+      date: "2026-04-17",
+      venue: "かがやくイス",
+      organizer: "かがやくイス",
+    },
+    report: {
+      handoutTitle: "スープのタイム 4月",
+      handoutSubtitle: "春野菜でかろやかレシピ",
+      handoutTagline: "家にある材料でササっと作れる簡単レシピ",
+      nutritionPerServing: [
+        { k: "エネルギー", v: "420", u: "kcal" },
+        { k: "タンパク質", v: "14.2", u: "g" },
+        { k: "脂質", v: "11.8", u: "g" },
+        { k: "炭水化物", v: "62.4", u: "g" },
+      ],
+      sides: ["春キャベツのコールスロー", "ディルと新じゃがのサラダ"],
+      recipes: [
+        { id: "r1", name: "新玉ねぎのポタージュ", serves: "4人分",
+          ingredients: ["新玉ねぎ  3個", "じゃがいも  1個", "だし汁  400ml", "牛乳  200ml", "バター  10g", "塩少々"],
+          steps: ["鍋にバターを溶かし、薄切りの玉ねぎとじゃがいもを炒める。だし汁を加え、野菜が柔らかくなるまで煮る。",
+                  "火を止めハンドブレンダーで滑らかにし、牛乳を加え塩・こしょうで味を整える。"] },
+        { id: "r2", name: "菜の花の炊き込みごはん", serves: "4人分",
+          ingredients: ["米 2合", "菜の花 1/2束", "油揚げ 1枚", "酒 大さじ1", "塩 小さじ1/2", "白ごま少々"],
+          steps: ["米を洗い、酒と塩を加えて炊飯する。", "菜の花はさっと茹でて1cmに刻む。", "炊き上がりに菜の花と油揚げを混ぜ、白ごまをふる。"] },
+        { id: "r3", name: "豚肉の青じそ巻き", serves: "4人分",
+          ingredients: ["豚薄切り肉 200g", "青じそ 8枚", "小麦粉・塩こしょう少々", "オリーブオイル", "みりん 大さじ2", "醤油 大さじ2"],
+          steps: ["豚肉に塩こしょう・小麦粉をふり、青じそをのせて巻く。", "オリーブオイルで焼き色をつける。", "みりん・醤油を加えて照りを出すまで煮からめる。"] },
+      ],
+    },
+  };
+
+  let data;
+  try {
+    const raw = sessionStorage.getItem("mc_handout");
+    data = raw ? JSON.parse(raw) : FALLBACK;
+  } catch (e) { data = FALLBACK; }
+
+  const { event, report } = data;
+  const recipes = (report.recipes || []).slice(0, 3);
+  // Pad to 3 recipes for consistent layout
+  while (recipes.length < 3) {
+    recipes.push({ id: "blank"+recipes.length, name: "—", serves: "—", ingredients: [], steps: [] });
+  }
+
+  const layout = document.getElementById("layout");
+
+  const monthMatch = (report.handoutTitle || event.title).match(/(\d+)\s*月/);
+  const month = monthMatch ? monthMatch[1] + "月" : "";
+
+  function renderRecipe(r) {
+    const ings = r.ingredients.map(i => `<li>${i}</li>`).join("");
+    const steps = r.steps.map(s => `<li>${s}</li>`).join("");
+    return `
+      <div class="recipe">
+        <div class="photo"><div class="ph">${r.name}</div></div>
+        <div class="content">
+          <h3>${r.name}</h3>
+          <div class="serves">材料[${r.serves}]</div>
+          <ul class="ingredients">${ings}</ul>
+          <ol class="steps">${steps}</ol>
+        </div>
+      </div>
+    `;
+  }
+
+  const nutRows = (report.nutritionPerServing || []).map(n => `
+    <tr><td>${n.k}${n.u === "kcal" ? "kcal" : n.u ? n.u : ""}</td><td class="v">${n.v}</td></tr>
+  `).join("");
+
+  const sideItems = (report.sides || []).map(s => `<li>${s}</li>`).join("");
+
+  layout.innerHTML = `
+    ${renderRecipe(recipes[0])}
+    ${renderRecipe(recipes[1])}
+
+    <div class="banner">
+      <div class="icon">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="20" r="8"/><path d="M10 14c0-4 2-6 6-6M16 8c4 0 6 2 6 6"/><path d="M10 20h12"/></svg>
+      </div>
+      <div>
+        <div class="kicker">${report.handoutSubtitle || "季節のレシピ"}</div>
+        <div class="hero">${(report.handoutTitle || event.title).replace(/\s*\d+\s*月/, '')}　<span style="color:#d4a868">${month}</span></div>
+        <div class="tagline">${report.handoutTagline || "家にある材料でササっと作れる簡単レシピ"}</div>
+      </div>
+      <div class="icon">
+        <svg viewBox="0 0 32 32"><path d="M6 20l20-10M6 20l6 6M26 10l-6-6M14 18l4-4"/></svg>
+      </div>
+    </div>
+
+    <div class="recipe wide">
+      <div class="photo"><div class="ph">${recipes[2].name}</div></div>
+      <div class="content">
+        <h3>${recipes[2].name}</h3>
+        <div class="serves">材料[${recipes[2].serves}]</div>
+        <ul class="ingredients">${recipes[2].ingredients.map(i=>`<li>${i}</li>`).join("")}</ul>
+        <ol class="steps">${recipes[2].steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+      </div>
+      <div>
+        <div class="nutrition">
+          <div class="h">[一人分 栄養量]</div>
+          <table>${nutRows}</table>
+        </div>
+        ${sideItems ? `<div class="sides" style="margin-top:6mm;">
+          <div class="h">※付け合せ</div>
+          <ul>${sideItems}</ul>
+        </div>` : ""}
+      </div>
+    </div>
+  `;
+
+  // Footer stamp
+  const stamp = document.createElement("div");
+  stamp.className = "footer-stamp";
+  stamp.innerHTML = `<span class="mark">まちのできごと</span>　${event.organizer || ""}　${event.date || ""}　${event.venue || ""}`;
+  document.getElementById("sheet").appendChild(stamp);
+</script>
+
+</body>
+</html>
